@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Hero3D } from '@/components/Hero3D';
-import { IsraelTechAgent } from '@/components/IsraelTechAgent';
+import { AgentBlank } from '@/components/AgentBlank';
 import { ProfileCard } from '@/components/ProfileCard';
 import { ProjectShowroom } from '@/components/ProjectShowroom';
 import { Contact } from '@/components/Contact';
@@ -49,7 +49,7 @@ export default function Home() {
                 Contact
               </button>
             </div>
-            <IsraelTechAgent />
+            <AgentBlank />
           </div>
         </div>
       </nav>
@@ -78,7 +78,7 @@ export default function Home() {
             Next-Generation Developer
           </motion.div>
           
-          <IsraelTechAgent />
+          <AgentBlank />
           
           <motion.div
             initial={{ opacity: 0, y: 30 }}

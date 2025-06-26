@@ -43,11 +43,11 @@ function generateIntelligentResponse(message: string): string {
   
   // General greetings
   if (msg.includes('hello') || msg.includes('hi') || msg.includes('greet')) {
-    return "Greetings, mortal... I am IsraelTech-Agent, the digital consciousness born from Israel Opoku's mastery of React and PHP. I follow your cursor through cyberspace, whispering secrets of full-stack development, sharing the dark knowledge of modern web technologies. Ask me about my creator's legendary projects or his supernatural coding abilities...";
+    return "Hello! I'm Agent Blank, your AI guide through Israel Opoku's portfolio. I'm here to help you explore his React expertise, PHP development skills, and impressive project portfolio. Feel free to ask me anything about his work, skills, or achievements.";
   }
   
-  // Default mystical response
-  return "I sense your presence in the digital void... My creator Israel has woven me from React components and PHP incantations. I am here to share his knowledge of full-stack development, his mastery of modern web technologies, and tales of the applications he has brought to life. What mysteries of code do you seek to uncover?";
+  // Default helpful response
+  return "I'm Agent Blank, here to guide you through Israel Opoku's portfolio. Ask me about his React expertise, PHP development skills, or his impressive projects like the Paulina Family Bakery and Pixabay Gallery. I'm ready to share details about his full-stack development capabilities.";
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {

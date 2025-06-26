@@ -34,19 +34,31 @@ function HologramOrb({ isListening, isActive }: HologramOrbProps) {
   }, [isListening]);
 
   return (
-    <div className="relative w-20 h-20">
-      <div 
+    <div className="relative w-full h-full">
+      {/* Glowing rings */}
+      <div className="absolute inset-0">
+        {[...Array(3)].map((_, i) => (
+          <div
+            key={i}
+            className={`absolute inset-0 rounded-full border animate-pulse ${
+              isListening ? 'border-red-400' : 'border-electric/40'
+            }`}
+            style={{
+              animationDelay: `${i * 0.2}s`,
+              transform: `scale(${1 + i * 0.1})`
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* Main orb */}
+      <div
         ref={orbRef}
-        className={`w-full h-full rounded-full relative ${
+        className={`w-full h-full rounded-full bg-gradient-to-br transition-all duration-300 ${
           isListening 
-            ? 'bg-gradient-to-br from-red-500 via-orange-500 to-red-600 animate-pulse' 
-            : 'bg-gradient-to-br from-electric via-cyber-green to-neon-purple'
-        }`}
-        style={{
-          boxShadow: isListening 
-            ? '0 0 30px #ff4444, 0 0 60px #ff4444, inset 0 0 20px rgba(255,255,255,0.1)'
-            : '0 0 30px #00F5FF, 0 0 60px #00F5FF, inset 0 0 20px rgba(255,255,255,0.1)'
-        }}
+            ? 'from-red-400 via-red-500 to-red-600 shadow-red-500/50' 
+            : 'from-electric via-cyan-400 to-blue-500 shadow-electric/50'
+        } shadow-2xl`}
       >
         <div className="absolute inset-2 rounded-full bg-gradient-to-br from-white/30 to-transparent" />
         
@@ -74,7 +86,7 @@ function HologramOrb({ isListening, isActive }: HologramOrbProps) {
   );
 }
 
-export function IsraelTechAgent() {
+export function AgentBlank() {
   const [isActive, setIsActive] = useState(false);
   const [inputMessage, setInputMessage] = useState('');
   const [speechEnabled, setSpeechEnabled] = useState(true);
@@ -102,42 +114,36 @@ export function IsraelTechAgent() {
         // Stop the stream after permission is granted
         stream.getTracks().forEach(track => track.stop());
         
-        // Introduce Agent Blank with voice
+        // Introduce Agent Blank with voice after a delay
         if (!hasIntroduced && speechEnabled) {
-          const introMessage = "Hello, I'm Agent Blank. I'm here to guide you through Israel Opoku's portfolio. You can speak to me or type your questions.";
-          
-          // Speak the introduction
-          const utterance = new SpeechSynthesisUtterance(introMessage);
-          utterance.rate = 0.85;
-          utterance.pitch = 1.0;
-          utterance.volume = 1.0;
-          
-          // Prefer female voices
-          const voices = speechSynthesis.getVoices();
-          const femaleVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes('female') || 
-            voice.name.toLowerCase().includes('woman') ||
-            voice.name.toLowerCase().includes('samantha') ||
-            voice.name.toLowerCase().includes('karen') ||
-            voice.name.toLowerCase().includes('moira')
-          );
-          
-          if (femaleVoice) {
-            utterance.voice = femaleVoice;
-          }
-          
-          speechSynthesis.speak(utterance);
-          setHasIntroduced(true);
+          setTimeout(() => {
+            const introMessage = "Hello, I'm Agent Blank. I'm here to guide you through Israel Opoku's portfolio. You can speak to me or type your questions.";
+            speakAsAgentBlank(introMessage);
+            setHasIntroduced(true);
+          }, 2000);
         }
       } catch (error) {
         console.log('Microphone access denied or unavailable');
         setMicrophoneAccess(false);
+        
+        // Still introduce without microphone
+        if (!hasIntroduced && speechEnabled) {
+          setTimeout(() => {
+            const introMessage = "Hello, I'm Agent Blank. I'm here to guide you through Israel Opoku's portfolio. You can type your questions to me.";
+            speakAsAgentBlank(introMessage);
+            setHasIntroduced(true);
+          }, 2000);
+        }
       }
     };
 
-    // Initialize after a short delay to ensure voices are loaded
+    // Initialize after voices are loaded
     const timer = setTimeout(() => {
-      initializeAgentBlank();
+      if (speechSynthesis.getVoices().length === 0) {
+        speechSynthesis.addEventListener('voiceschanged', initializeAgentBlank, { once: true });
+      } else {
+        initializeAgentBlank();
+      }
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -188,7 +194,8 @@ export function IsraelTechAgent() {
       voice.name.toLowerCase().includes('susan') ||
       voice.name.toLowerCase().includes('zira') ||
       voice.name.toLowerCase().includes('hazel') ||
-      (voice.gender && voice.gender === 'female')
+      voice.name.toLowerCase().includes('fiona') ||
+      voice.name.toLowerCase().includes('alice')
     ) || voices.find(voice => !voice.name.toLowerCase().includes('male'));
     
     if (femaleVoice) {
@@ -217,17 +224,11 @@ export function IsraelTechAgent() {
 
   const toggleAgent = () => {
     setIsActive(!isActive);
-    if (!isActive) {
-      // Animate entrance after element exists
+    if (!isActive && microphoneAccess && isSupported) {
+      // Auto-start listening when agent is activated
       setTimeout(() => {
-        const agentInterface = document.querySelector('.agent-interface');
-        if (agentInterface) {
-          gsap.fromTo(agentInterface, 
-            { scale: 0, opacity: 0, rotation: 180 },
-            { scale: 1, opacity: 1, rotation: 0, duration: 0.8, ease: 'back.out(1.7)' }
-          );
-        }
-      }, 50);
+        startListening();
+      }, 500);
     }
   };
 
@@ -250,81 +251,84 @@ export function IsraelTechAgent() {
             initial={{ opacity: 0, scale: 0.8, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 50 }}
-            className="agent-interface fixed bottom-32 right-8 z-40 w-96 max-h-[70vh]"
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="agent-interface fixed bottom-32 right-8 w-96 h-96 bg-black/90 backdrop-blur-xl rounded-2xl border border-electric/30 shadow-2xl shadow-electric/20 z-40"
           >
-            <div className="holographic rounded-3xl p-6 backdrop-blur-xl border border-electric/30">
+            <div className="h-full flex flex-col p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gradient-to-r from-electric to-neon-purple rounded-full mr-3 animate-glow relative">
-                    <div className="absolute inset-1 rounded-full bg-gradient-to-br from-white/30 to-transparent" />
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-electric to-cyan-400 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-black rounded-full animate-pulse" />
                   </div>
                   <div>
-                    <h3 className="font-orbitron font-bold text-electric text-sm">ISRAELTECH-AGENT</h3>
-                    <p className="text-xs text-gray-400">Haunting Digital Entity</p>
+                    <h3 className="text-white font-orbitron font-bold text-sm">AGENT BLANK</h3>
+                    <p className="text-electric text-xs">
+                      {microphoneAccess ? 'Voice & Text Ready' : 'Text Ready'}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex gap-2">
                   <Button
+                    onClick={() => setSpeechEnabled(!speechEnabled)}
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSpeechEnabled(!speechEnabled)}
-                    className="text-gray-400 hover:text-white p-1"
+                    className="text-electric hover:bg-electric/20 rounded-xl"
                   >
                     {speechEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                   </Button>
                   <Button
+                    onClick={toggleAgent}
                     variant="ghost"
                     size="sm"
-                    onClick={toggleAgent}
-                    className="text-gray-400 hover:text-white p-1"
+                    className="text-electric hover:bg-electric/20 rounded-xl"
                   >
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
 
-              {/* Messages */}
+              {/* Chat Messages */}
               <div 
                 ref={chatContainerRef}
-                className="space-y-3 mb-4 h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-electric/20 scrollbar-track-transparent"
+                className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2 scrollbar-thin scrollbar-thumb-electric/30 scrollbar-track-transparent"
               >
-                {messages.map((message) => (
-                  <motion.div
-                    key={message.id}
-                    initial={{ opacity: 0, y: 10, x: message.isUser ? 20 : -20 }}
-                    animate={{ opacity: 1, y: 0, x: 0 }}
-                    transition={{ type: 'spring', damping: 20, stiffness: 400 }}
-                    className={`${
-                      message.isUser 
-                        ? 'bg-electric/10 ml-12 rounded-xl p-3 border border-electric/20' 
-                        : 'bg-gradient-to-r from-neon-purple/10 via-electric/10 to-cyber-green/10 rounded-xl p-3 border border-electric/30'
-                    }`}
-                  >
-                    <div className={`text-xs font-semibold mb-1 ${
-                      message.isUser ? 'text-white' : 'text-electric'
-                    }`}>
-                      {message.isUser ? 'You' : 'IsraelTech-Agent'}
+                {messages.length === 0 ? (
+                  <div className="text-center text-gray-400 text-sm mt-8">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-electric to-cyan-400 flex items-center justify-center animate-pulse">
+                      <MessageCircle className="w-6 h-6 text-black" />
                     </div>
-                    <div className="text-sm text-gray-300 leading-relaxed">{message.text}</div>
-                  </motion.div>
-                ))}
-                
-                {isLoading && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="bg-gradient-to-r from-neon-purple/10 via-electric/10 to-cyber-green/10 rounded-xl p-3 border border-electric/30"
-                  >
-                    <div className="text-xs text-electric font-semibold mb-1">IsraelTech-Agent</div>
-                    <div className="text-sm text-gray-300">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-electric rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-neon-purple rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                        <div className="w-2 h-2 bg-cyber-green rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                    <p>I'm Agent Blank, your AI guide.</p>
+                    <p className="text-xs mt-1">Ask me about Israel's projects, skills, or portfolio.</p>
+                  </div>
+                ) : (
+                  messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[80%] p-3 rounded-xl text-sm ${
+                          message.isUser
+                            ? 'bg-electric text-black font-medium'
+                            : 'bg-gray-800 text-white border border-electric/20'
+                        }`}
+                      >
+                        {message.text}
                       </div>
                     </div>
-                  </motion.div>
+                  ))
+                )}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-800 border border-electric/20 p-3 rounded-xl">
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-electric rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-electric rounded-full animate-bounce" style={{animationDelay: '0.1s'}} />
+                        <div className="w-2 h-2 bg-electric rounded-full animate-bounce" style={{animationDelay: '0.2s'}} />
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -347,7 +351,7 @@ export function IsraelTechAgent() {
 
                 {/* Voice & Quick Actions */}
                 <div className="flex gap-2 flex-wrap">
-                  {isSupported && (
+                  {isSupported && microphoneAccess && (
                     <Button
                       onClick={isListening ? stopListening : startListening}
                       variant="outline"
@@ -362,7 +366,7 @@ export function IsraelTechAgent() {
                   )}
                   
                   <Button
-                    onClick={() => sendMessage("Tell me about Israel's React mastery")}
+                    onClick={() => sendMessage("Tell me about Israel's React expertise")}
                     variant="outline"
                     size="sm"
                     className="border-plasma-pink/30 text-plasma-pink hover:bg-plasma-pink/30 text-xs rounded-xl"
@@ -371,12 +375,12 @@ export function IsraelTechAgent() {
                   </Button>
                   
                   <Button
-                    onClick={() => sendMessage("Show me Israel's dark coding arts")}
+                    onClick={() => sendMessage("Show me Israel's portfolio projects")}
                     variant="outline"
                     size="sm"
-                    className="border-neon-purple/30 text-neon-purple hover:bg-neon-purple/30 text-xs rounded-xl"
+                    className="border-electric/30 text-electric hover:bg-electric/30 text-xs rounded-xl"
                   >
-                    Dark Arts
+                    Projects
                   </Button>
                 </div>
               </div>
@@ -385,33 +389,37 @@ export function IsraelTechAgent() {
         )}
       </AnimatePresence>
 
-      {/* Introduction Overlay */}
-      {!isActive && (
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2, duration: 1 }}
-          className="fixed bottom-4 left-4 z-30 max-w-md"
-        >
-          <div className="holographic rounded-2xl p-6 backdrop-blur-xl border border-electric/30">
-            <div className="flex items-center mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-electric to-neon-purple rounded-full mr-3 animate-glow" />
-              <h3 className="font-orbitron text-lg font-bold text-electric">ISRAELTECH-AGENT</h3>
+      {/* Welcome Modal - First Time */}
+      <AnimatePresence>
+        {!isActive && !hasIntroduced && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-2xl border border-electric/30 max-w-md mx-4 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-electric to-cyan-400 flex items-center justify-center">
+                <MessageCircle className="w-8 h-8 text-black" />
+              </div>
+              <h2 className="text-2xl font-orbitron font-bold text-white mb-3">
+                Meet Agent Blank
+              </h2>
+              <p className="text-sm text-gray-300 mb-4 leading-relaxed">
+                I'm your AI guide through Israel Opoku's portfolio. I'll automatically request microphone access 
+                for voice interaction and guide you through his projects, skills, and achievements with natural conversation.
+              </p>
+              <Button 
+                onClick={toggleAgent}
+                className="neon-button w-full rounded-xl font-semibold text-black"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Activate Agent Blank
+              </Button>
             </div>
-            <p className="text-sm text-gray-300 mb-4 leading-relaxed">
-              "I am a haunting digital entity, crafted by Israel Opoku's mastery of React and PHP. 
-              I follow your cursor, watching... learning... ready to share the dark secrets of my creator's work."
-            </p>
-            <Button 
-              onClick={toggleAgent}
-              className="neon-button w-full rounded-xl font-semibold text-black"
-            >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Summon the Agent
-            </Button>
-          </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
