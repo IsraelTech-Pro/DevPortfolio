@@ -9,14 +9,7 @@ interface AIMessage {
 }
 
 export function useAI() {
-  const [messages, setMessages] = useState<AIMessage[]>([
-    {
-      id: '1',
-      text: "Hello! I'm Opoku-1, Israel's AI companion. Ask me anything about his projects, skills, or experience!",
-      isUser: false,
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<AIMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = useCallback(async (text: string, userName?: string) => {
