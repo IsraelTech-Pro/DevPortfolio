@@ -1,11 +1,16 @@
 import express, { type Request, Response, NextFunction } from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// API logger middleware
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -39,36 +44,33 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-
     res.status(status).json({ message });
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
+  const isDev = app.get("env") === "development";
+
+  if (isDev) {
+    // Only setup Vite dev server locally
     await setupVite(app, server);
   } else {
-    serveStatic(app);
+    // Serve static frontend in production
+    const clientDist = path.resolve(__dirname, "../client/dist");
+    app.use(express.static(clientDist));
+
+    // For non-API routes, serve index.html (for SPA routing)
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(clientDist, "index.html"));
+    });
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
- server.listen(
-  {
-    port,
-    host: "127.0.0.1", // use 'localhost' or '127.0.0.1' instead of '0.0.0.0'
-    // reusePort: true, // comment this out or remove it entirely
-  },
-  () => {
-    log(`serving on port ${port}`);
-  }
-);
-
+  // Use port from env (Render provides it)
+  const port = process.env.PORT || 5000;
+  server.listen(port, () => {
+    log(`🚀 Server running on port ${port}`);
+  });
 })();
