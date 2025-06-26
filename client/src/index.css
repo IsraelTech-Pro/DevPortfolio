@@ -247,9 +247,6 @@
   .border-hologram { border-color: hsl(180, 100%, 63%); }
 }
 
-/* Import fonts */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
-
 .font-orbitron {
   font-family: 'Orbitron', monospace;
 }

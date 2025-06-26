@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Hero3D } from '@/components/Hero3D';
 import { AgentBlank } from '@/components/AgentBlank';
+import { ImmersiveWorkspace } from '@/components/ImmersiveWorkspace';
 import { ProfileCard } from '@/components/ProfileCard';
 import { ProjectShowroom } from '@/components/ProjectShowroom';
 import { Contact } from '@/components/Contact';
@@ -54,9 +55,9 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section id="hero" className="min-h-screen flex items-center justify-center relative">
-        <Hero3D />
+      {/* Immersive Developer Workspace Section */}
+      <section id="hero" className="min-h-screen relative">
+        <ImmersiveWorkspace />
         
         <div className="relative z-10 text-center max-w-6xl mx-auto px-6">
           <motion.h1

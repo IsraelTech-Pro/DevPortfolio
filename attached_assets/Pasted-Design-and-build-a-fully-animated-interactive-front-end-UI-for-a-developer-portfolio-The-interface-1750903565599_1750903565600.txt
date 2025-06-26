@@ -1,0 +1,67 @@
+Design and build a fully animated, interactive front-end UI for a developer portfolio. The interface should visually represent a programmer’s digital workspace, combining realism, futuristic style, and immersive animations. The theme is dark, tech-savvy, and alive — representing the creative, intelligent environment of a full-stack developer.
+
+✨ UI Design Requirements
+Theme: Modern developer environment
+
+Dark mode by default
+
+Neon accents (cyan, purple, or deep blue)
+
+Subtle matrix-like digital particles or data streams in the background
+
+Use high-performance GPU-friendly animation libraries (GSAP, Framer Motion)
+
+3D Elements (React Three Fiber):
+
+Floating code editors
+
+Terminal windows that animate open/close
+
+Coffee mug with rising steam
+
+A glowing keyboard with keystroke animation on hover
+
+Dual-monitor desk setup in 3D, with project screens the user can interact with
+
+Interactive Mouse Behaviors:
+
+Cursor highlights or “magnetizes” objects on hover
+
+Mouse movement shifts lighting, camera parallax, and depth (e.g., head tracking style)
+
+Cursor-following glow trail or ripple pulse effect
+
+Animations:
+
+Smooth page transitions with fade and slide
+
+On-scroll reveal of code snippets or tool icons (GSAP timeline triggers)
+
+Hover effects that simulate tool feedback (e.g., keyboard clicks, folder opening)
+
+Developer Tools UI Elements:
+
+A floating toolbar showing icons: VS Code, GitHub, Terminal, Browser, React, Laravel
+
+Each icon opens an animated floating window with live content when clicked
+
+Code files float and scroll in 3D space, fading in/out with context
+
+Animated terminal logs showing "building project..." or real-time typing simulation
+
+Voice AI Integration Placeholder (Agent Blank):
+
+Reserved space or animated hologram area for Agent Blank avatar
+
+Subtle pulsing ring or waveform when she’s listening or speaking
+
+Interactive UI lighting responds when the assistant is active
+
+🧑‍💻 Vibe & Branding
+Make the user feel like they're stepping into Israel Opoku’s personal coding lab
+
+Blend realism (keyboard, code) with imaginative elements (floating holograms, intelligent UI)
+
+Keep everything interactive, reactive, and intuitive — no static sections or boring cards
+
+Prioritize developer personality, mastery, and futuristic presence
