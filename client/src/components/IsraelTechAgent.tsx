@@ -132,11 +132,16 @@ export function IsraelTechAgent() {
   const toggleAgent = () => {
     setIsActive(!isActive);
     if (!isActive) {
-      // Animate entrance
-      gsap.fromTo('.agent-interface', 
-        { scale: 0, opacity: 0, rotation: 180 },
-        { scale: 1, opacity: 1, rotation: 0, duration: 0.8, ease: 'back.out(1.7)' }
-      );
+      // Animate entrance after element exists
+      setTimeout(() => {
+        const agentInterface = document.querySelector('.agent-interface');
+        if (agentInterface) {
+          gsap.fromTo(agentInterface, 
+            { scale: 0, opacity: 0, rotation: 180 },
+            { scale: 1, opacity: 1, rotation: 0, duration: 0.8, ease: 'back.out(1.7)' }
+          );
+        }
+      }, 50);
     }
   };
 

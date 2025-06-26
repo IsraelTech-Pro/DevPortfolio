@@ -31,7 +31,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).pick({
   message: true,
-  response: true,
+}).extend({
+  response: z.string().optional(),
 });
 
 export const insertContactMessageSchema = createInsertSchema(contactMessages).pick({
