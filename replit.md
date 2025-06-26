@@ -108,7 +108,11 @@ The application uses three main tables:
 
 ```
 Changelog:
-- June 26, 2025. Initial setup
+- June 26, 2025: Initial setup with cinematic 3D AI portfolio
+- June 26, 2025: Implemented IsraelTech-Agent with instant response system
+- June 26, 2025: Added voice recognition and text-to-speech with female voice
+- June 26, 2025: Integrated intelligent fallback responses with authentic expertise data
+- June 26, 2025: Removed Send button for seamless auto-response interaction
 ```
 
 ## User Preferences

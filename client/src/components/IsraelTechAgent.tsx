@@ -5,7 +5,7 @@ import { useVoiceRecognition } from '@/hooks/useVoiceRecognition';
 import { CursorFollower } from './CursorFollower';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Mic, Send, X, MessageCircle, Volume2, VolumeX } from 'lucide-react';
+import { Mic, X, MessageCircle, Volume2, VolumeX } from 'lucide-react';
 import gsap from 'gsap';
 
 interface HologramOrbProps {
@@ -89,43 +89,67 @@ export function IsraelTechAgent() {
     }
   }, [messages]);
 
-  // Handle voice input
+  // Handle voice input and auto-send
   useEffect(() => {
-    if (transcript && !isListening) {
-      setInputMessage(transcript);
+    if (transcript && !isListening && isActive) {
+      sendMessage(transcript);
     }
-  }, [transcript, isListening]);
+  }, [transcript, isListening, isActive]);
+
+  // Auto-send typed input after pause in typing
+  useEffect(() => {
+    if (!inputMessage.trim()) return;
+    
+    const timer = setTimeout(() => {
+      if (inputMessage.trim()) {
+        sendMessage(inputMessage);
+        setInputMessage('');
+      }
+    }, 1500); // Send after 1.5 seconds of no typing
+    
+    return () => clearTimeout(timer);
+  }, [inputMessage]);
 
   // Text-to-speech for AI responses
   const speakText = (text: string) => {
     if (speechEnabled && 'speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 0.8;
-      utterance.volume = 0.7;
+      utterance.rate = 0.85;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      // Find a female voice if available
+      const voices = speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('female') || 
+        voice.name.toLowerCase().includes('samantha') ||
+        voice.name.toLowerCase().includes('victoria') ||
+        voice.name.toLowerCase().includes('karen') ||
+        voice.name.toLowerCase().includes('susan')
+      );
+      
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
+      
       speechSynthesis.speak(utterance);
     }
   };
 
-  const handleSendMessage = async () => {
-    if (inputMessage.trim()) {
-      await sendMessage(inputMessage);
-      setInputMessage('');
-      
-      // Speak the last AI response
+  // Auto-speak AI responses
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && !lastMessage.isUser && speechEnabled) {
       setTimeout(() => {
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage && !lastMessage.isUser) {
-          speakText(lastMessage.text);
-        }
-      }, 500);
+        speakText(lastMessage.text);
+      }, 300);
     }
-  };
+  }, [messages, speechEnabled]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      // Auto-send is handled by useEffect, no manual sending needed
     }
   };
 
@@ -244,22 +268,19 @@ export function IsraelTechAgent() {
 
               {/* Input Area */}
               <div className="space-y-3">
-                <div className="flex gap-2">
+                <div className="relative">
                   <Input
-                    placeholder="Speak to the entity..."
+                    placeholder="Type or speak... I respond instantly"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    className="flex-1 bg-black/50 border-electric/30 text-white placeholder-gray-400 focus:border-electric rounded-xl"
+                    className="w-full bg-black/50 border-electric/30 text-white placeholder-gray-400 focus:border-electric rounded-xl pr-16"
                   />
-                  <Button
-                    onClick={handleSendMessage}
-                    disabled={!inputMessage.trim() || isLoading}
-                    size="sm"
-                    className="bg-electric text-black hover:bg-electric/80 rounded-xl px-4"
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
+                  {isLoading && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-electric border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Voice & Quick Actions */}
