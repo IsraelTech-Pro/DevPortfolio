@@ -19,7 +19,7 @@ export function useAI() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = useCallback(async (text: string) => {
+  const sendMessage = useCallback(async (text: string, userName?: string) => {
     if (!text.trim()) return;
 
     const userMessage: AIMessage = {
@@ -33,7 +33,7 @@ export function useAI() {
     setIsLoading(true);
 
     try {
-      const response = await sendChatMessage(text);
+      const response = await sendChatMessage(text, userName);
       
       const aiMessage: AIMessage = {
         id: (Date.now() + 1).toString(),

@@ -92,6 +92,7 @@ export function AgentBlank() {
   const [speechEnabled, setSpeechEnabled] = useState(true);
   const [hasIntroduced, setHasIntroduced] = useState(false);
   const [microphoneAccess, setMicrophoneAccess] = useState(false);
+  const [userName, setUserName] = useState('');
   const { messages, sendMessage, isLoading } = useAI();
   const { isListening, transcript, startListening, stopListening, isSupported } = useVoiceRecognition();
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -117,7 +118,7 @@ export function AgentBlank() {
         // Introduce Agent Blank with voice after a delay
         if (!hasIntroduced && speechEnabled) {
           setTimeout(() => {
-            const introMessage = "Hello, I'm Agent Blank. I'm here to guide you through Israel Opoku's portfolio. You can speak to me or type your questions.";
+            const introMessage = "Hello, I'm Agent Blank — Israel Opoku's AI assistant. I can tell you anything about him, his skills, or his work. What's your name?";
             speakAsAgentBlank(introMessage);
             setHasIntroduced(true);
           }, 2000);
@@ -129,7 +130,7 @@ export function AgentBlank() {
         // Still introduce without microphone
         if (!hasIntroduced && speechEnabled) {
           setTimeout(() => {
-            const introMessage = "Hello, I'm Agent Blank. I'm here to guide you through Israel Opoku's portfolio. You can type your questions to me.";
+            const introMessage = "Hello, I'm Agent Blank — Israel Opoku's AI assistant. I can tell you anything about him, his skills, or his work. What's your name?";
             speakAsAgentBlank(introMessage);
             setHasIntroduced(true);
           }, 2000);
@@ -152,9 +153,9 @@ export function AgentBlank() {
   // Handle voice input and auto-send
   useEffect(() => {
     if (transcript && !isListening && isActive) {
-      sendMessage(transcript);
+      sendMessage(transcript, userName);
     }
-  }, [transcript, isListening, isActive]);
+  }, [transcript, isListening, isActive, userName]);
 
   // Auto-send typed input after pause in typing
   useEffect(() => {
@@ -162,7 +163,13 @@ export function AgentBlank() {
     
     const timer = setTimeout(() => {
       if (inputMessage.trim()) {
-        sendMessage(inputMessage);
+        // Extract name if user is introducing themselves
+        const possibleName = extractNameFromMessage(inputMessage);
+        if (possibleName && !userName) {
+          setUserName(possibleName);
+        }
+        
+        sendMessage(inputMessage, userName || possibleName || '');
         setInputMessage('');
       }
     }, 1500); // Send after 1.5 seconds of no typing
@@ -220,6 +227,29 @@ export function AgentBlank() {
       e.preventDefault();
       // Auto-send is handled by useEffect, no manual sending needed
     }
+  };
+
+  // Name extraction function
+  const extractNameFromMessage = (message: string): string => {
+    const msg = message.toLowerCase();
+    
+    if (msg.includes('my name is ')) {
+      return message.split(/my name is /i)[1]?.split(/[,.!?]/)[0]?.trim() || '';
+    }
+    if (msg.includes("i'm ")) {
+      return message.split(/i'm /i)[1]?.split(/[,.!?]/)[0]?.trim() || '';
+    }
+    if (msg.includes('i am ')) {
+      return message.split(/i am /i)[1]?.split(/[,.!?]/)[0]?.trim() || '';
+    }
+    
+    // If it's a short message without question words, assume it might be just a name
+    const words = message.trim().split(' ');
+    if (words.length <= 2 && !msg.includes('what') && !msg.includes('how') && !msg.includes('tell')) {
+      return message.trim();
+    }
+    
+    return '';
   };
 
   const toggleAgent = () => {
@@ -349,9 +379,9 @@ export function AgentBlank() {
                   )}
                 </div>
 
-                {/* Voice & Quick Actions */}
-                <div className="flex gap-2 flex-wrap">
-                  {isSupported && microphoneAccess && (
+                {/* Voice Control */}
+                {isSupported && microphoneAccess && (
+                  <div className="flex justify-center">
                     <Button
                       onClick={isListening ? stopListening : startListening}
                       variant="outline"
@@ -361,28 +391,10 @@ export function AgentBlank() {
                       }`}
                     >
                       <Mic className="w-3 h-3 mr-1" />
-                      {isListening ? 'Listening...' : 'Voice'}
+                      {isListening ? 'Listening...' : 'Start Voice'}
                     </Button>
-                  )}
-                  
-                  <Button
-                    onClick={() => sendMessage("Tell me about Israel's React expertise")}
-                    variant="outline"
-                    size="sm"
-                    className="border-plasma-pink/30 text-plasma-pink hover:bg-plasma-pink/30 text-xs rounded-xl"
-                  >
-                    React Skills
-                  </Button>
-                  
-                  <Button
-                    onClick={() => sendMessage("Show me Israel's portfolio projects")}
-                    variant="outline"
-                    size="sm"
-                    className="border-electric/30 text-electric hover:bg-electric/30 text-xs rounded-xl"
-                  >
-                    Projects
-                  </Button>
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>

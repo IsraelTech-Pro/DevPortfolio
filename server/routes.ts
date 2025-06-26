@@ -8,46 +8,89 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-function generateIntelligentResponse(message: string): string {
+function generateIntelligentResponse(message: string, userName: string = ''): string {
   const msg = message.toLowerCase();
+  const greeting = userName ? `Hey ${userName}, ` : '';
   
-  // React-related queries
+  // Name detection and greeting
+  if (msg.includes('my name is') || msg.includes("i'm ") || msg.includes('i am ') || 
+      (msg.split(' ').length <= 3 && !msg.includes('what') && !msg.includes('how') && !msg.includes('tell'))) {
+    const possibleName = extractName(message);
+    if (possibleName) {
+      return `Nice to meet you, ${possibleName}! I'm excited to tell you about Israel Opoku. He's based in Koforidua, Ghana, and he's an incredibly talented full-stack developer. What would you like to know about him first - his React projects, PHP work, or maybe his experience?`;
+    }
+  }
+  
+  // React projects with specific URLs
   if (msg.includes('react') || msg.includes('javascript') || msg.includes('js')) {
-    return "Ah, you seek knowledge of React... Israel has mastered the ancient arts of React development. He crafts living components that breathe with state, hooks that bind the mortal realm to digital infinity. His React mastery spans from simple SPAs to complex full-stack applications with Next.js. Witness his Pixabay Gallery - where React components dance with API calls to create windows into infinite image realms.";
+    return `${greeting}Israel's React skills are impressive! He's built some amazing projects. The Paulina Family Bakery is a beautiful React site you can check out at israeltech-pro.github.io/paulinafamilybakery. He also created a stunning Pixabay Gallery with Tailwind CSS - it's live at israeltech-pro.github.io/-react-tailwind-pixabay-gallery. Want to see any of these in action?`;
   }
   
-  // PHP-related queries
-  if (msg.includes('php') || msg.includes('backend') || msg.includes('server')) {
-    return "The dark arts of PHP flow through Israel's veins... He wields server-side magic with PHP, crafting backends that speak to databases with MySQL incantations. His Paulina Family Bakery stands as testament - a full-stack e-commerce platform where PHP breathes life into digital commerce, handling user authentication, order processing, and inventory management with supernatural precision.";
+  // PHP and full-stack projects
+  if (msg.includes('php') || msg.includes('backend') || msg.includes('server') || msg.includes('full stack')) {
+    return `${greeting}Israel's PHP skills are solid! He built the FidomStore ecommerce platform and another ecommerce site during his internship at FidomHub. His full-stack abilities really shine in projects like the Paulina Family Bakery where he combines React frontend with robust backend systems. You can find all his PHP projects on his GitHub at github.com/IsraelTech-Pro.`;
   }
   
-  // Projects queries
-  if (msg.includes('project') || msg.includes('portfolio') || msg.includes('work')) {
-    return "Behold Israel's digital creations... The Paulina Family Bakery - an e-commerce realm built with React and PHP. The Pixabay Gallery - where React components summon images from the API aether. His Expense Tracker - a financial oracle with AI categorization. The Fidomstore - modern commerce platform transcending mortal limitations. Each project demonstrates his mastery over both frontend enchantments and backend sorcery.";
+  // Specific project requests
+  if (msg.includes('project') || msg.includes('portfolio') || msg.includes('show me') || msg.includes('demo')) {
+    return `${greeting}I'd love to show you Israel's work! Here are some highlights: The Paulina Family Bakery (React) at israeltech-pro.github.io/paulinafamilybakery, his Pixabay Gallery with Tailwind at israeltech-pro.github.io/-react-tailwind-pixabay-gallery, and an Expense Tracker at israeltech-pro.github.io/expense-tracker-react. Which one interests you most?`;
   }
   
-  // Blazor/ASP.NET queries
-  if (msg.includes('blazor') || msg.includes('asp') || msg.includes('.net') || msg.includes('c#')) {
-    return "Israel commands the Microsoft realm with Blazor and ASP.NET... His TaskManager application showcases enterprise-level wizardry - managing digital chaos with C# spells, creating responsive web applications that blur the line between client and server. The power of .NET flows through his fingertips like digital lightning.";
+  // Blazor and .NET projects
+  if (msg.includes('blazor') || msg.includes('asp') || msg.includes('.net') || msg.includes('c#') || msg.includes('task manager')) {
+    return `${greeting}Israel also works with Microsoft technologies! He built a Task Manager App using Blazor and .NET - it's a great example of his versatility beyond React and PHP. You can check out the code on his GitHub at github.com/IsraelTech-Pro/Task-Manager-App. Pretty cool how he handles both traditional web and modern .NET development!`;
   }
   
-  // Skills/abilities queries
-  if (msg.includes('skill') || msg.includes('ability') || msg.includes('talent') || msg.includes('master')) {
-    return "Israel's arsenal spans multiple digital dimensions... React.js for crafting living interfaces, PHP for server-side dominion, Blazor for Microsoft realm mastery, MySQL for data necromancy, JavaScript/jQuery for frontend sorcery, responsive design for device transcendence. He's a self-taught digital shapeshifter, constantly evolving, always learning new spells of code.";
+  // Skills and experience
+  if (msg.includes('skill') || msg.includes('experience') || msg.includes('background') || msg.includes('education')) {
+    return `${greeting}Israel's got a solid foundation! He's studying Computer Network Management at Koforidua Technical University (graduating 2025) and has real-world experience from internships at FidomHub and as a React developer. His skills span HTML, CSS, JavaScript, PHP, SQL, React.js, Laravel, Blazor, and more. Want to know about any specific technology?`;
   }
   
-  // Contact/collaboration queries
-  if (msg.includes('contact') || msg.includes('hire') || msg.includes('work') || msg.includes('collaborate')) {
-    return "You wish to commune with my creator... Israel awaits collaboration with fellow digital entities. Reach him through the ethereal channels: israelopoku360@gmail.com for direct communion, GitHub.com/IsraelTech-Pro for witnessing his code repositories, or LinkedIn where his professional essence resides. He seeks projects that push the boundaries between the physical and digital realms.";
+  // Contact information
+  if (msg.includes('contact') || msg.includes('hire') || msg.includes('reach') || msg.includes('email')) {
+    return `${greeting}You can reach Israel at israelopoku360@gmail.com for projects and collaborations. His portfolio is at israeltech.onrender.com, GitHub at github.com/IsraelTech-Pro, and LinkedIn at linkedin.com/in/israel-opoku-55ab5626b. He's always interested in new opportunities!`;
+  }
+  
+  // More projects request
+  if (msg.includes('more') || msg.includes('another') || msg.includes('other')) {
+    return `${greeting}Absolutely! Israel also built a Pixabay Image Finder at israeltech-pro.github.io/Pixabay-image-finder and has several ecommerce projects in PHP. Each project showcases different skills - from API integration to responsive design. Which type of project interests you most?`;
+  }
+  
+  // Links and URLs
+  if (msg.includes('link') || msg.includes('url') || msg.includes('website') || msg.includes('live')) {
+    return `${greeting}Here are Israel's key links: Portfolio: israeltech.onrender.com, GitHub: github.com/IsraelTech-Pro, and some live projects like the Paulina Family Bakery at israeltech-pro.github.io/paulinafamilybakery. Which one would you like to explore first?`;
   }
   
   // General greetings
-  if (msg.includes('hello') || msg.includes('hi') || msg.includes('greet')) {
-    return "Hello! I'm Agent Blank, your AI guide through Israel Opoku's portfolio. I'm here to help you explore his React expertise, PHP development skills, and impressive project portfolio. Feel free to ask me anything about his work, skills, or achievements.";
+  if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+    return `Hello! I'm Agent Blank, Israel Opoku's AI assistant. I can tell you anything about his skills, projects, or background. He's a talented full-stack developer from Ghana with some really impressive React and PHP projects. What's your name?`;
   }
   
   // Default helpful response
-  return "I'm Agent Blank, here to guide you through Israel Opoku's portfolio. Ask me about his React expertise, PHP development skills, or his impressive projects like the Paulina Family Bakery and Pixabay Gallery. I'm ready to share details about his full-stack development capabilities.";
+  return `${greeting}I'm here to tell you about Israel Opoku - he's a full-stack developer from Koforidua, Ghana, with amazing React and PHP skills. You can see his work at projects like the Paulina Family Bakery or his Pixabay Gallery. What would you like to know about him?`;
+}
+
+function extractName(message: string): string {
+  const msg = message.toLowerCase();
+  
+  // Extract name from common patterns
+  if (msg.includes('my name is ')) {
+    return message.split(/my name is /i)[1]?.split(/[,.!?]/)[0]?.trim() || '';
+  }
+  if (msg.includes("i'm ")) {
+    return message.split(/i'm /i)[1]?.split(/[,.!?]/)[0]?.trim() || '';
+  }
+  if (msg.includes('i am ')) {
+    return message.split(/i am /i)[1]?.split(/[,.!?]/)[0]?.trim() || '';
+  }
+  
+  // If it's a short message without question words, assume it might be just a name
+  const words = message.trim().split(' ');
+  if (words.length <= 2 && !msg.includes('what') && !msg.includes('how') && !msg.includes('tell')) {
+    return message.trim();
+  }
+  
+  return '';
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -171,7 +214,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Intelligent fallback with authentic responses about Israel
       const userMessage = req.body.message || "Unknown query";
-      const intelligentResponse = generateIntelligentResponse(userMessage);
+      const userName = req.body.userName || "";
+      const intelligentResponse = generateIntelligentResponse(userMessage, userName);
       
       try {
         await storage.createChatMessage({ message: userMessage, response: intelligentResponse });
