@@ -148,7 +148,7 @@ export function ProjectShowroom() {
           className="holographic rounded-3xl p-8 text-center"
         >
           <div className="ai-orb mx-auto mb-6" />
-          <h3 className="font-orbitron text-2xl font-bold text-electric mb-4">ASK OPOKU-1 ABOUT ANY PROJECT</h3>
+          <h3 className="font-orbitron text-2xl font-bold text-electric mb-4">ASK AGENT BLANK ABOUT ANY PROJECT</h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
             My AI companion can explain the technical details, challenges overcome, and implementation 
             specifics of any project. Just ask!

@@ -148,7 +148,7 @@ export function Contact() {
                 className="w-full border-2 border-cyber-green text-cyber-green py-3 rounded-xl font-semibold hover:bg-cyber-green hover:text-black"
               >
                 <Mic className="w-4 h-4 mr-2" />
-                Speak to Opoku-1 AI
+                Speak to AGENT BLANK AI
               </Button>
             </div>
           </motion.div>

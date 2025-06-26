@@ -20,7 +20,7 @@ export function ProfileCard() {
         <div className="text-center mb-8">
           <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-electric to-neon-purple p-1 mb-4">
             <img 
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" 
+              src="https://israeltech.onrender.com/img/profile.png" 
               alt="Israel Opoku - Developer" 
               className="w-full h-full rounded-full object-cover" 
             />
